@@ -102,6 +102,7 @@ CREATE TABLE IF NOT EXISTS doctor_schedules (
 CREATE TABLE IF NOT EXISTS patients (
     patient_id INT AUTO_INCREMENT PRIMARY KEY,
     patient_code VARCHAR(30) NOT NULL UNIQUE,
+    user_id INT UNIQUE,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     date_of_birth DATE NOT NULL,
@@ -117,6 +118,7 @@ CREATE TABLE IF NOT EXISTS patients (
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_patient_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
     INDEX idx_patient_name (first_name, last_name),
     INDEX idx_patient_phone (contact_number)
 ) ENGINE=InnoDB;
@@ -425,3 +427,32 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     INDEX idx_audit_time (created_at),
     INDEX idx_audit_user (username)
 ) ENGINE=InnoDB;
+
+-- ----------------------------------------------------------------------------
+-- 25. Patient Feedback Table
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS patient_feedback (
+    feedback_id INT AUTO_INCREMENT PRIMARY KEY,
+    appointment_id INT NOT NULL UNIQUE,
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    rating INT NOT NULL, -- 1 to 5 stars
+    comments TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_fb_appointment FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id) ON DELETE CASCADE,
+    CONSTRAINT fk_fb_patient FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+    CONSTRAINT fk_fb_doctor FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE,
+    INDEX idx_fb_doctor (doctor_id),
+    INDEX idx_fb_patient (patient_id)
+) ENGINE=InnoDB;
+
+-- ----------------------------------------------------------------------------
+-- 26. System Settings Table
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS system_settings (
+    setting_key VARCHAR(100) PRIMARY KEY,
+    setting_value TEXT NOT NULL,
+    description VARCHAR(255),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+

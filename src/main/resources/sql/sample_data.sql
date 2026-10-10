@@ -13,11 +13,12 @@ INSERT INTO roles (role_id, role_name, description) VALUES
 (3, 'RECEPTIONIST', 'Front-desk staff for patient intake and appointment booking'),
 (4, 'PHARMACIST', 'Pharmacy staff for inventory and prescription dispensing'),
 (5, 'LAB_STAFF', 'Laboratory technician for lab test orders and result entry'),
-(6, 'BILLING_STAFF', 'Accounts and billing staff for invoices and payment processing')
+(6, 'BILLING_STAFF', 'Accounts and billing staff for invoices and payment processing'),
+(7, 'PATIENT', 'Registered Patient with online booking, medical history, and feedback privileges')
 ON DUPLICATE KEY UPDATE description = VALUES(description);
 
 -- ----------------------------------------------------------------------------
--- 2. Users (Passwords: admin123, doctor123, recep123, pharm123, lab123, bill123)
+-- 2. Users (Passwords: admin123, doctor123, recep123, pharm123, lab123, bill123, patient123)
 -- ----------------------------------------------------------------------------
 INSERT INTO users (user_id, username, password_hash, full_name, email, phone, role_id, is_active) VALUES
 (1, 'admin', '$2a$12$Y3zMgVnwEvzePx8GbK1/Luvei.EjjXJwccZx2wiu4vTFMMsihJay.', 'Dr. Alexander Vance (Administrator)', 'admin@apexcarehospital.com', '+1-555-0100', 1, TRUE),
@@ -26,7 +27,9 @@ INSERT INTO users (user_id, username, password_hash, full_name, email, phone, ro
 (4, 'receptionist1', '$2a$12$ws2qSxCHobjU/lwNizEy7ea1mAN6oL/Eako3bSETMOZKsmbtGmpLW', 'Sarah Jenkins', 'sarah.reception@apexcarehospital.com', '+1-555-0103', 3, TRUE),
 (5, 'pharmacist1', '$2a$12$R7zgzSaxo.TLf29nh7h1hO2JrIp.vVDM495LQyB.BY9tmP7WEBRlK', 'David Miller, PharmD', 'david.pharmacy@apexcarehospital.com', '+1-555-0104', 4, TRUE),
 (6, 'labstaff1', '$2a$12$NTHhjN6sSq3PkGTrSOfRUOa344TrxLzioZwE9azze9TxNN0/F5NZO', 'Rachel Adams', 'rachel.lab@apexcarehospital.com', '+1-555-0105', 5, TRUE),
-(7, 'billing1', '$2a$12$O2pOynkGVVdRaV4Wk28F0.pMrQBP1.LH8F5EKurB1GOAJmUGPu/pW', 'Michael Scott', 'michael.billing@apexcarehospital.com', '+1-555-0106', 6, TRUE)
+(7, 'billing1', '$2a$12$O2pOynkGVVdRaV4Wk28F0.pMrQBP1.LH8F5EKurB1GOAJmUGPu/pW', 'Michael Scott', 'michael.billing@apexcarehospital.com', '+1-555-0106', 6, TRUE),
+(8, 'patient1', '$2a$12$tqozg1waFYeVSGH.yq7WpuduRJ6phVubyiXir2I7TGwp3T7o7xW3u', 'John Doe', 'john.doe@gmail.com', '+1-555-1111', 7, TRUE),
+(9, 'patient2', '$2a$12$tqozg1waFYeVSGH.yq7WpuduRJ6phVubyiXir2I7TGwp3T7o7xW3u', 'Emily Clark', 'emily.clark@outlook.com', '+1-555-2222', 7, TRUE)
 ON DUPLICATE KEY UPDATE full_name = VALUES(full_name);
 
 -- ----------------------------------------------------------------------------
@@ -75,13 +78,13 @@ ON DUPLICATE KEY UPDATE is_active = VALUES(is_active);
 -- ----------------------------------------------------------------------------
 -- 7. Patients
 -- ----------------------------------------------------------------------------
-INSERT INTO patients (patient_id, patient_code, first_name, last_name, date_of_birth, gender, contact_number, email, address, emergency_contact_name, emergency_contact_phone, blood_group, allergies, medical_history, is_active) VALUES
-(1, 'PAT-1001', 'John', 'Doe', '1985-04-12', 'Male', '+1-555-1111', 'john.doe@gmail.com', '124 Maple St, Springfield', 'Jane Doe (Wife)', '+1-555-1112', 'O+', 'Penicillin', 'Mild hypertension since 2021', TRUE),
-(2, 'PAT-1002', 'Emily', 'Clark', '1992-09-24', 'Female', '+1-555-2222', 'emily.clark@outlook.com', '56 Elm Ave, Metropolis', 'Peter Clark (Brother)', '+1-555-2223', 'A+', 'None', 'Asthma triggered by pollen', TRUE),
-(3, 'PAT-1003', 'Robert', 'Taylor', '1968-11-03', 'Male', '+1-555-3333', 'robert.taylor@yahoo.com', '89 Pine Rd, Gotham', 'Mary Taylor (Daughter)', '+1-555-3334', 'B-', 'Sulfa drugs', 'Type 2 Diabetes, Coronary Stent in 2019', TRUE),
-(4, 'PAT-1004', 'Sophia', 'Martinez', '2015-06-18', 'Female', '+1-555-4444', 'smartinez@parent.org', '32 Oak Blvd, Star City', 'Elena Martinez (Mother)', '+1-555-4445', 'AB+', 'Peanuts', 'Childhood eczema', TRUE),
-(5, 'PAT-1005', 'William', 'Anderson', '1955-02-14', 'Male', '+1-555-5555', 'w.anderson@provider.net', '710 Birch Lane, Central City', 'Laura Anderson (Daughter)', '+1-555-5556', 'O-', 'NSAIDs (Aspirin)', 'Chronic kidney disease Stage 2', TRUE)
-ON DUPLICATE KEY UPDATE first_name = VALUES(first_name);
+INSERT INTO patients (patient_id, patient_code, user_id, first_name, last_name, date_of_birth, gender, contact_number, email, address, emergency_contact_name, emergency_contact_phone, blood_group, allergies, medical_history, is_active) VALUES
+(1, 'PAT-1001', 8, 'John', 'Doe', '1985-04-12', 'Male', '+1-555-1111', 'john.doe@gmail.com', '124 Maple St, Springfield', 'Jane Doe (Wife)', '+1-555-1112', 'O+', 'Penicillin', 'Mild hypertension since 2021', TRUE),
+(2, 'PAT-1002', 9, 'Emily', 'Clark', '1992-09-24', 'Female', '+1-555-2222', 'emily.clark@outlook.com', '56 Elm Ave, Metropolis', 'Peter Clark (Brother)', '+1-555-2223', 'A+', 'None', 'Asthma triggered by pollen', TRUE),
+(3, 'PAT-1003', NULL, 'Robert', 'Taylor', '1968-11-03', 'Male', '+1-555-3333', 'robert.taylor@yahoo.com', '89 Pine Rd, Gotham', 'Mary Taylor (Daughter)', '+1-555-3334', 'B-', 'Sulfa drugs', 'Type 2 Diabetes, Coronary Stent in 2019', TRUE),
+(4, 'PAT-1004', NULL, 'Sophia', 'Martinez', '2015-06-18', 'Female', '+1-555-4444', 'smartinez@parent.org', '32 Oak Blvd, Star City', 'Elena Martinez (Mother)', '+1-555-4445', 'AB+', 'Peanuts', 'Childhood eczema', TRUE),
+(5, 'PAT-1005', NULL, 'William', 'Anderson', '1955-02-14', 'Male', '+1-555-5555', 'w.anderson@provider.net', '710 Birch Lane, Central City', 'Laura Anderson (Daughter)', '+1-555-5556', 'O-', 'NSAIDs (Aspirin)', 'Chronic kidney disease Stage 2', TRUE)
+ON DUPLICATE KEY UPDATE first_name = VALUES(first_name), user_id = VALUES(user_id);
 
 -- ----------------------------------------------------------------------------
 -- 8. Wards & Beds
@@ -125,7 +128,9 @@ INSERT INTO appointments (appointment_id, appointment_number, patient_id, doctor
 (1, 'APT-2026-101', 1, 1, CURDATE(), '09:00:00', '09:30:00', 'SCHEDULED', 'Routine cardiac follow-up and ECG check', 'Patient reported mild palpitations'),
 (2, 'APT-2026-102', 2, 4, CURDATE(), '10:00:00', '10:20:00', 'CHECKED_IN', 'Persistent cough and respiratory wheezing', 'In waiting lounge'),
 (3, 'APT-2026-103', 4, 2, CURDATE(), '11:00:00', '11:20:00', 'SCHEDULED', 'Childhood wellness exam and vaccination', 'Brought immunization booklet'),
-(4, 'APT-2026-104', 5, 1, DATE_ADD(CURDATE(), INTERVAL 1 DAY), '10:00:00', '10:30:00', 'SCHEDULED', 'Hypertension medication adjustment review', 'Recent BP reading 145/92')
+(4, 'APT-2026-104', 5, 1, DATE_ADD(CURDATE(), INTERVAL 1 DAY), '10:00:00', '10:30:00', 'SCHEDULED', 'Hypertension medication adjustment review', 'Recent BP reading 145/92'),
+(5, 'APT-2026-105', 1, 1, DATE_SUB(CURDATE(), INTERVAL 3 DAY), '09:00:00', '09:30:00', 'COMPLETED', 'Initial Cardiac Assessment', 'Consultation finished, prescribed statin'),
+(6, 'APT-2026-106', 2, 2, DATE_SUB(CURDATE(), INTERVAL 1 DAY), '14:00:00', '14:20:00', 'COMPLETED', 'Pediatric checkup for asthma', 'Inhaler prescribed, follow-up in 30 days')
 ON DUPLICATE KEY UPDATE status = VALUES(status);
 
 -- ----------------------------------------------------------------------------
@@ -223,3 +228,27 @@ INSERT INTO audit_logs (user_id, username, action, entity_type, entity_id, detai
 (4, 'receptionist1', 'CREATE', 'PATIENT', 'PAT-1001', 'Registered patient John Doe', '192.168.1.10'),
 (2, 'dr.smith', 'CREATE', 'ADMISSION', 'ADM-2026-001', 'Admitted patient Robert Taylor to Cardiac ICU Bed 7', '192.168.1.15'),
 (7, 'billing1', 'CREATE', 'PAYMENT', 'PAY-2026-001', 'Processed advance payment of $300.00 for INV-2026-001', '192.168.1.20');
+
+-- ----------------------------------------------------------------------------
+-- 17. Patient Feedback
+-- ----------------------------------------------------------------------------
+INSERT INTO patient_feedback (feedback_id, appointment_id, patient_id, doctor_id, rating, comments, created_at) VALUES
+(1, 5, 1, 1, 5, 'Dr. Evelyn Smith was exceptionally thorough, attentive, and clearly explained my cardiac test results. Excellent patient care!', DATE_SUB(NOW(), INTERVAL 2 DAY))
+ON DUPLICATE KEY UPDATE rating = VALUES(rating);
+
+-- ----------------------------------------------------------------------------
+-- 18. System Settings
+-- ----------------------------------------------------------------------------
+INSERT INTO system_settings (setting_key, setting_value, description) VALUES
+('hospital_name', 'Apex Care Multi-Specialty Hospital', 'Official hospital and clinic organization name'),
+('hospital_tagline', 'Excellence in Healthcare & Patient Care', 'Public organization tagline'),
+('hospital_address', '742 Evergreen Terrace, Medical District, Suite 100', 'Physical clinic address'),
+('hospital_phone', '+1 (555) 234-5678', 'Main contact and emergency helpline phone number'),
+('hospital_email', 'contact@apexcarehospital.com', 'Primary administrative contact email'),
+('operating_hours', 'Monday - Saturday: 08:00 AM - 08:00 PM; Emergency 24/7', 'General outpatient operating hours'),
+('slot_duration_minutes', '20', 'Default consultation time slot duration in minutes'),
+('max_daily_patients_per_doctor', '20', 'Maximum outpatient appointments per doctor per shift'),
+('cancellation_cutoff_hours', '2', 'Minimum notice in hours required for patients to cancel/reschedule'),
+('allow_patient_registration', 'true', 'Enable or disable public online patient self-registration')
+ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
+

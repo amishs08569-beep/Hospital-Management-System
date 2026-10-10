@@ -148,6 +148,19 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public boolean delete(int userId) {
+        String sql = "DELETE FROM users WHERE user_id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            logger.error("Error deleting user {}: {}", userId, e.getMessage());
+            throw new DatabaseException("Failed to delete user account: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public boolean setActiveStatus(int userId, boolean active) {
         String sql = "UPDATE users SET is_active = ? WHERE user_id = ?";
         try (Connection conn = DatabaseConfig.getConnection();
@@ -159,6 +172,79 @@ public class UserDaoImpl implements UserDao {
             logger.error("Error updating user status {}: {}", userId, e.getMessage());
             throw new DatabaseException("Failed to update user active status: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public List<User> findPaged(String search, Integer roleId, int offset, int limit) {
+        List<User> users = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT u.*, r.role_name FROM users u JOIN roles r ON u.role_id = r.role_id WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (LOWER(u.username) LIKE ? OR LOWER(u.full_name) LIKE ? OR LOWER(u.email) LIKE ?) ");
+            String pattern = "%" + search.trim().toLowerCase() + "%";
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+        if (roleId != null && roleId > 0) {
+            sql.append("AND u.role_id = ? ");
+            params.add(roleId);
+        }
+
+        sql.append("ORDER BY u.user_id ASC LIMIT ? OFFSET ?");
+        params.add(limit > 0 ? limit : 10);
+        params.add(Math.max(0, offset));
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    users.add(mapResultSetToUser(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error executing paged user search: {}", e.getMessage());
+            throw new DatabaseException("Database error retrieving paged users: " + e.getMessage(), e);
+        }
+        return users;
+    }
+
+    @Override
+    public int countUsers(String search, Integer roleId) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM users u WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (LOWER(u.username) LIKE ? OR LOWER(u.full_name) LIKE ? OR LOWER(u.email) LIKE ?) ");
+            String pattern = "%" + search.trim().toLowerCase() + "%";
+            params.add(pattern);
+            params.add(pattern);
+            params.add(pattern);
+        }
+        if (roleId != null && roleId > 0) {
+            sql.append("AND u.role_id = ? ");
+            params.add(roleId);
+        }
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error counting users: {}", e.getMessage());
+            throw new DatabaseException("Database error counting users: " + e.getMessage(), e);
+        }
+        return 0;
     }
 
     private User mapResultSetToUser(ResultSet rs) throws SQLException {

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 public class Patient {
     private Integer patientId;
     private String patientCode;
+    private Integer userId;
     private String firstName;
     private String lastName;
     private LocalDate dateOfBirth;
@@ -69,6 +70,9 @@ public class Patient {
 
     public Integer getPatientId() { return patientId; }
     public void setPatientId(Integer patientId) { this.patientId = patientId; }
+
+    public Integer getUserId() { return userId; }
+    public void setUserId(Integer userId) { this.userId = userId; }
 
     public String getPatientCode() { return patientCode; }
     public void setPatientCode(String patientCode) { this.patientCode = patientCode; }

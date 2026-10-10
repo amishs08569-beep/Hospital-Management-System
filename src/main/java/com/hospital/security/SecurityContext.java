@@ -7,53 +7,90 @@ import com.hospital.exception.AuthorizationException;
  */
 public class SecurityContext {
 
-    private static volatile UserSession currentSession;
+    private static final ThreadLocal<UserSession> threadLocalSession = new ThreadLocal<>();
 
-    private SecurityContext() {}
+    private static volatile UserSession globalSession;
+
+    private SecurityContext() {
+        // Utility class; prevent instantiation.
+    }
 
     public static void setCurrentSession(UserSession session) {
-        currentSession = session;
+        threadLocalSession.set(session);
+        globalSession = session;
+    }
+
+    public static void setThreadSession(UserSession session) {
+        threadLocalSession.set(session);
     }
 
     public static UserSession getCurrentSession() {
-        return currentSession;
+        UserSession session = threadLocalSession.get();
+        return session != null ? session : globalSession;
     }
 
     public static boolean isAuthenticated() {
-        return currentSession != null;
+        return getCurrentSession() != null;
     }
 
     public static void clear() {
-        currentSession = null;
+        threadLocalSession.remove();
+        globalSession = null;
+    }
+
+    public static void clearThread() {
+        threadLocalSession.remove();
     }
 
     /**
-     * Asserts that a user is currently authenticated and has the required permission.
-     * Throws an AuthorizationException if the assertion fails.
+     * Asserts that a user is authenticated and has the required permission.
      *
      * @param permission The required permission
+     * @throws AuthorizationException if authentication or authorization fails
      */
-    public static void requirePermission(RolePermission.Permission permission) {
-        if (!isAuthenticated()) {
-            throw new AuthorizationException("Authentication required. Please log in first.");
+    public static void requirePermission(
+            RolePermission.Permission permission) {
+
+        UserSession currentSession = getCurrentSession();
+
+        if (currentSession == null) {
+            throw new AuthorizationException(
+                    "Authentication required. Please log in first.");
         }
+
         if (!currentSession.hasPermission(permission)) {
-            throw new AuthorizationException("Access denied: missing permission [" + permission + "] for role [" + currentSession.getRoleName() + "]");
+            throw new AuthorizationException(
+                    "Access denied: missing permission [" + permission
+                            + "] for role [" + currentSession.getRoleName()
+                            + "]");
         }
     }
 
     /**
-     * Checks if current user has the specified permission without throwing an exception.
+     * Checks whether the current user has the specified permission.
      */
-    public static boolean hasPermission(RolePermission.Permission permission) {
-        return isAuthenticated() && currentSession.hasPermission(permission);
+    public static boolean hasPermission(
+            RolePermission.Permission permission) {
+
+        UserSession currentSession = getCurrentSession();
+
+        return currentSession != null
+                && currentSession.hasPermission(permission);
     }
 
     public static Integer getCurrentUserId() {
-        return currentSession != null ? currentSession.getUserId() : null;
+        UserSession currentSession = getCurrentSession();
+
+        return currentSession != null
+                ? currentSession.getUserId()
+                : null;
     }
 
     public static String getCurrentUsername() {
-        return currentSession != null ? currentSession.getUsername() : "SYSTEM";
+        UserSession currentSession = getCurrentSession();
+
+        return currentSession != null
+                ? currentSession.getUsername()
+                : "SYSTEM";
     }
 }

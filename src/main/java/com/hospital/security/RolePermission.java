@@ -14,6 +14,7 @@ public class RolePermission {
     public enum RoleType {
         ADMIN,
         DOCTOR,
+        PATIENT,
         RECEPTIONIST,
         PHARMACIST,
         LAB_STAFF,
@@ -79,7 +80,18 @@ public class RolePermission {
         CREATE_INVOICE,
         COLLECT_PAYMENT,
         VIEW_INVOICES,
-        APPLY_DISCOUNT
+        APPLY_DISCOUNT,
+
+        // Patient Feedback
+        SUBMIT_FEEDBACK,
+        VIEW_FEEDBACK,
+
+        // System Settings
+        MANAGE_SETTINGS,
+        VIEW_SETTINGS,
+
+        // Profile Management
+        UPDATE_PROFILE
     }
 
     private static final Map<RoleType, Set<Permission>> ROLE_PERMISSIONS = new HashMap<>();
@@ -99,8 +111,23 @@ public class RolePermission {
                 Permission.VIEW_PRESCRIPTION,
                 Permission.REQUEST_LAB_TEST,
                 Permission.VIEW_LAB_RESULTS,
-                Permission.VIEW_ADMISSIONS
+                Permission.VIEW_ADMISSIONS,
+                Permission.VIEW_FEEDBACK,
+                Permission.UPDATE_PROFILE
         ));
+
+        // PATIENT permissions
+        ROLE_PERMISSIONS.put(RoleType.PATIENT, EnumSet.of(
+                Permission.BOOK_APPOINTMENT,
+                Permission.VIEW_APPOINTMENTS,
+                Permission.CANCEL_APPOINTMENT,
+                Permission.VIEW_MEDICAL_RECORD,
+                Permission.VIEW_PRESCRIPTION,
+                Permission.SUBMIT_FEEDBACK,
+                Permission.VIEW_FEEDBACK,
+                Permission.UPDATE_PROFILE
+        ));
+
 
         // RECEPTIONIST permissions
         ROLE_PERMISSIONS.put(RoleType.RECEPTIONIST, EnumSet.of(

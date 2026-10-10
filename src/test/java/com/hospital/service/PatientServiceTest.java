@@ -20,6 +20,11 @@ public class PatientServiceTest {
     public static void setup() {
         DatabaseConfig.initializeH2();
         DbInitializer.initializeDatabase();
+        com.hospital.model.User admin = new com.hospital.model.User();
+        admin.setUserId(1);
+        admin.setUsername("admin");
+        admin.setRoleName("ADMIN");
+        com.hospital.security.SecurityContext.setCurrentSession(new com.hospital.security.UserSession(admin));
         patientService = new PatientServiceImpl();
     }
 

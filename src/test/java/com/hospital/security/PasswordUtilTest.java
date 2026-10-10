@@ -18,6 +18,6 @@ public class PasswordUtilTest {
         System.out.println("HASH_RECEP: " + PasswordUtil.hashPassword("recep123"));
         System.out.println("HASH_PHARM: " + PasswordUtil.hashPassword("pharm123"));
         System.out.println("HASH_LAB: " + PasswordUtil.hashPassword("lab123"));
-        System.out.println("HASH_BILL: " + PasswordUtil.hashPassword("bill123"));
+        System.out.println("HASH_PATIENT: " + PasswordUtil.hashPassword("patient123"));
     }
 }

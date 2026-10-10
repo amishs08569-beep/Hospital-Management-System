@@ -6,6 +6,7 @@ import java.util.Optional;
 
 public interface PatientDao {
     Optional<Patient> findById(int patientId);
+    Optional<Patient> findByUserId(int userId);
     Optional<Patient> findByCode(String code);
     Optional<Patient> findByPhone(String phone);
     List<Patient> findAll(String search, boolean activeOnly);

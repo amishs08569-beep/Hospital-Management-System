@@ -35,6 +35,24 @@ public class PatientDaoImpl implements PatientDao {
     }
 
     @Override
+    public Optional<Patient> findByUserId(int userId) {
+        String sql = "SELECT * FROM patients WHERE user_id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapResultSetToPatient(rs));
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding patient by user ID {}: {}", userId, e.getMessage());
+            throw new DatabaseException("Failed to find patient by user ID: " + e.getMessage(), e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<Patient> findByCode(String code) {
         String sql = "SELECT * FROM patients WHERE UPPER(patient_code) = UPPER(?)";
         try (Connection conn = DatabaseConfig.getConnection();
