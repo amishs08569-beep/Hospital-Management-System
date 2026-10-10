@@ -148,7 +148,7 @@ public class PharmacyPanel extends JPanel {
         if (d.isSaved()) {
             Medicine m = d.getMedicine();
             AppController.executeAsync(
-                    () -> AppController.getInstance().getPharmacyS / ervice().addMedicine(m),
+                    () -> AppController.getInstance().getPharmacyService().addMedicine(m),
                     res -> {
                         NotificationToast.showSuccess(this, "Medication added! Code: " + res.getMedicineCode());
                         loadMedicines();
